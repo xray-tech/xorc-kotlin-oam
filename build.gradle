@@ -1,0 +1,89 @@
+buildscript {
+    ext.kotlin_version = '1.2.51'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+
+}
+
+plugins {
+    id "com.github.johnrengelman.shadow" version "2.0.1"
+}
+
+
+subprojects {
+    group 'io.xorc'
+    version '1.1-SNAPSHOT'
+    apply plugin: 'kotlin'
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
+
+def clojarsUsername=project.properties['clojarsUsername'] ?: "unknown"
+def clojarsPassword=project.properties['clojarsPassword'] ?: "unknown"
+
+project(':runtime') {
+    apply plugin: 'maven-publish'
+    apply plugin: 'maven'
+
+    dependencies {
+        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        compile 'org.msgpack:msgpack-core:0.8.13'
+        compile 'org.slf4j:slf4j-api:1.7.25'
+        compile 'com.beust:klaxon:3.0.5'
+    }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    publishing {
+        repositories {
+            maven {
+                url "https://clojars.org/repo"
+                credentials(PasswordCredentials) {
+                    username clojarsUsername
+                    password clojarsPassword
+                }
+            }
+
+
+        }
+        publications {
+            "mavenJava"(MavenPublication) {
+                artifactId 'oam'
+                from components.java
+                artifact(sourcesJar)
+            }
+        }
+    }
+}
+
+project(":bin") {
+    apply plugin: 'application'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    archivesBaseName = 'jvm-oam'
+    mainClassName = 'io.xorc.oam.MainKt'
+
+    dependencies {
+        compile project(':runtime')
+        compile 'ch.qos.logback:logback-classic:1.2.3'
+    }
+}

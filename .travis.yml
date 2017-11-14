@@ -1,0 +1,14 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+  - IMAGE=xorcio/kotlin-oam:$TRAVIS_COMMIT
+
+before_install:
+  - docker build -t $IMAGE .
+
+script:
+  - docker run $IMAGE /usr/oam-test

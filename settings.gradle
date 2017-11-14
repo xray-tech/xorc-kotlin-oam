@@ -1,0 +1,6 @@
+rootProject.name = 'oam'
+
+include 'runtime', 'bin'
+
+
+
