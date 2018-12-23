@@ -1,6 +1,6 @@
 FROM xorcio/orc:3146eb9aec551972679eba1fb5647af2128c6098 as orc
 
-FROM openjdk:8u171-jdk
+FROM openjdk:11.0.1-jdk
 COPY --from=orc /usr/local/bin/testkit.exe /usr/local/bin/testkit.exe
 COPY --from=orc /prelude /orc/prelude
 
